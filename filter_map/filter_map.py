@@ -15,4 +15,12 @@ class FilterMapExercise:
         :param input_array: Исходный список.
         :return: Отфильтрованный список.
         """
-        pass
+
+        if input_array:
+
+            filtered_array = list(
+                map(lambda x: x[1], list(filter(lambda x: x[0], list(map(func, input_array)))))
+            )
+
+            return filtered_array
+        return []
