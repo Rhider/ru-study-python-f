@@ -47,29 +47,27 @@ class FlaskExercise:
 
             return {"errors": {"name": "This field is required"}}, 422
 
-        @app.route("/user/<name>", methods=["GET", "PATCH", "DELETE"])
-        def manage_user(name: str) -> Tuple[Union[str, Dict[str, Any]], int]:
+        @app.route("/user/<name>", methods=["GET"])
+        def get(name: str) -> Tuple[Union[str, Dict[str, Any]], int]:
+            if name in users:
+                return {"data": f"My name is {name}"}, 200
 
-            if request.method == "GET":
+            return {"data": f"User with name {name} does not exist!"}, 404
 
-                if name in users:
-                    return {"data": f"My name is {name}"}, 200
+        @app.route("/user/<name>", methods=["PATCH"])
+        def patch(name: str) -> Tuple[Union[str, Dict[str, Any]], int]:
+            if name in users:
+                data = json.loads(request.data)
+                new_name = data["name"]
+                users[new_name] = users.pop(name)
+                return {"data": f"My name is {new_name}"}, 200
 
-                return {"data": f"User with name {name} does not exist!"}, 404
+            return {"errors": {"name": f"{name} is not found"}}, 404
 
-            if request.method == "PATCH":
-
-                if name in users:
-                    data = json.loads(request.data)
-                    new_name = data["name"]
-                    users[new_name] = users.pop(name)
-
-                    return {"data": f"My name is {new_name}"}, 200
-
-            if request.method == "DELETE":
-
-                if name in users:
-                    users.pop(name)
-                    return "", 204
+        @app.route("/user/<name>", methods=["DELETE"])
+        def delete(name: str) -> Tuple[Union[str, Dict[str, Any]], int]:
+            if name in users:
+                users.pop(name)
+                return "", 204
 
             return {"errors": {"name": f"{name} is not found"}}, 404
