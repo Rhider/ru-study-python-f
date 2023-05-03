@@ -1,4 +1,11 @@
+import json
+from typing import Tuple, Dict, Any, Union
+
 from flask import Flask
+from flask import request
+
+
+users: Dict = {}
 
 
 class FlaskExercise:
@@ -28,4 +35,39 @@ class FlaskExercise:
 
     @staticmethod
     def configure_routes(app: Flask) -> None:
-        pass
+        @app.route("/user", methods=["POST"])
+        def post() -> Tuple[Dict[str, Any], int]:
+            data = json.loads(request.data)
+
+            if "name" in data:
+                username = data["name"]
+                users[username] = {}
+
+                return {"data": f"User {username} is created!"}, 201
+
+            return {"errors": {"name": "This field is required"}}, 422
+
+        @app.route("/user/<name>", methods=["GET"])
+        def get(name: str) -> Tuple[Union[str, Dict[str, Any]], int]:
+            if name in users:
+                return {"data": f"My name is {name}"}, 200
+
+            return {"data": f"User with name {name} does not exist!"}, 404
+
+        @app.route("/user/<name>", methods=["PATCH"])
+        def patch(name: str) -> Tuple[Union[str, Dict[str, Any]], int]:
+            if name in users:
+                data = json.loads(request.data)
+                new_name = data["name"]
+                users[new_name] = users.pop(name)
+                return {"data": f"My name is {new_name}"}, 200
+
+            return {"errors": {"name": f"{name} is not found"}}, 404
+
+        @app.route("/user/<name>", methods=["DELETE"])
+        def delete(name: str) -> Tuple[Union[str, Dict[str, Any]], int]:
+            if name in users:
+                users.pop(name)
+                return "", 204
+
+            return {"errors": {"name": f"{name} is not found"}}, 404
