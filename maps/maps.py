@@ -1,4 +1,3 @@
-from functools import reduce
 from typing import Union
 
 
@@ -17,13 +16,12 @@ class MapExercise:
 
         filter_list = list(
             filter(
-                lambda film: len(film["country"].split(",")) > 1
-                and film["rating_kinopoisk"] not in ("", "0"),
+                lambda film: "," in film["country"] and film["rating_kinopoisk"] not in ("", "0"),
                 list_of_movies,
             )
         )
         ratings = list(map(lambda film: float(film["rating_kinopoisk"]), filter_list))
-        average_rating = reduce(lambda x, y: x + y, ratings) / len(ratings)
+        average_rating = sum(ratings) / len(ratings)
 
         return average_rating
 
@@ -50,7 +48,7 @@ class MapExercise:
         )
         if filter_list:
             ratings = list(map(lambda film: film["name"].count("и"), filter_list))
-            count_letters = reduce(lambda x, y: x + y, ratings)
+            count_letters = sum(ratings)
             return count_letters
 
         return 0
